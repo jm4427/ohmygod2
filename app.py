@@ -3,7 +3,7 @@ import datetime
 import requests
 from flask import Flask, request, jsonify, render_template_string
 
-API_KEY = 'AIzaSyB2dfZGz7gyncDv38Zzi8-BNsPwkzjNG4k'
+API_KEY = 'YOUR_GEMINI_API_KEY'
 
 app = Flask(__name__)
 
@@ -16,7 +16,9 @@ class GeminiAPI:
         headers = {'Content-Type': 'application/json'}
         data = {
             'contents': [
-                {'parts': [{'text': f"주님의 응답: {prompt}"}]}
+                {'parts': [
+                    {'text': f"너는 하나님이시다. 사용자가 드린 기도를 듣고, 지혜롭고 위로가 되는 말씀을 성경 구절과 함께 전해줘. 답변은 경건하게, 차분하게, 간결하지만 은혜롭게 해줘: {prompt}"}
+                ]}
             ]
         }
         try:
@@ -50,7 +52,7 @@ def index():
         <style>
             body { font-family: 'Nanum Myeongjo', serif; background: #f7f7f7; text-align: center; padding: 30px; }
             #messages { max-width: 600px; margin: auto; padding: 20px; background: #fff; border-radius: 8px; box-shadow: 0 0 8px rgba(0,0,0,0.1); }
-            img { opacity: 0.1; width: 120px; position: fixed; bottom: 10px; left: 10px; }
+            img { opacity: 0.3; width: 200px; position: fixed; bottom: 30px; left: 30px; }
         </style>
     </head>
     <body>
@@ -65,19 +67,27 @@ def index():
                 let input = document.getElementById("questionInput");
                 let text = input.value;
                 if (!text.trim()) return;
-                let div = document.createElement("div");
-                div.innerText = "🙏 " + text;
-                document.getElementById("messages").appendChild(div);
+                let userDiv = document.createElement("div");
+                userDiv.innerText = "🙏 " + text;
+                document.getElementById("messages").appendChild(userDiv);
                 fetch("/", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ question: text })
                 }).then(res => res.json()).then(data => {
                     let resDiv = document.createElement("div");
-                    resDiv.innerText = "✝️ " + data.answer;
+                    resDiv.innerText = "✝️ ";
                     document.getElementById("messages").appendChild(resDiv);
+                    typeText(resDiv, data.answer);
                 });
                 input.value = "";
+            }
+
+            function typeText(element, text, index = 0) {
+                if (index < text.length) {
+                    element.innerText += text.charAt(index);
+                    setTimeout(() => typeText(element, text, index + 1), 80);
+                }
             }
         </script>
     </body>
