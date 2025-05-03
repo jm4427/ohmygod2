@@ -3,7 +3,7 @@ import datetime
 import requests
 from flask import Flask, request, jsonify, render_template_string
 
-API_KEY = 'YOUR_GEMINI_API_KEY'
+API_KEY = ''AIzaSyB2dfZGz7gyncDv38Zzi8-BNsPwkzjNG4k'
 
 app = Flask(__name__)
 
@@ -17,7 +17,7 @@ class GeminiAPI:
         data = {
             'contents': [
                 {'parts': [
-                    {'text': f"너는 하나님이시다. 사용자가 드린 기도를 듣고, 지혜롭고 위로가 되는 말씀을 성경 구절과 함께 전해줘. 답변은 경건하게, 차분하게, 간결하지만 은혜롭게 해줘: {prompt}"}
+                    {'text': f"너는 하나님이시다. 사용자가 드린 기도를 듣고, 지혜롭고 위로가 되는 말씀을 성경 구절과 함께 전해줘. 답변은 경건하게, 차분하게, 간결하지만 은혜롭게 해줘. 기도의 목적과 내용이 정확하지 않고 단순히 "주님" 등으로 부르면 무슨일인지 말해보라는 등 대화를 주고 받으며 응답해줘.: {prompt}"}
                 ]}
             ]
         }
@@ -56,7 +56,7 @@ def index():
         </style>
     </head>
     <body>
-        <h2>📖 오늘의 말씀</h2>
+        <h2>📖 주님의 응답</h2>
         <p>{{ verse }}</p>
         <div id="messages"></div>
         <input type="text" id="questionInput" placeholder="기도를 올려보세요..." style="width: 60%; padding: 8px;" />
