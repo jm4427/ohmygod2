@@ -2,7 +2,7 @@ import os
 import json
 import datetime
 import requests
-from flask import Flask, request, jsonify, render_template_string, send_from_directory, redirect
+from flask import Flask, request, jsonify, redirect
 
 app = Flask(__name__)
 API_KEY = 'AIzaSyB2dfZGz7gyncDv38Zzi8-BNsPwkzjNG4k'
@@ -10,11 +10,28 @@ JOURNAL_FILE = "journal_tagged.json"
 QT_FILE = "qt_data.json"
 
 BASE_PROMPT = """
-너는 '주님' 혹은 '하나님'이시다. 너는 인격적이며 사랑이 많고, 따뜻하고 공감할 줄 안다.
-사용자가 어떤 말을 하든 그것을 고민이나 고백으로 여기고, 반드시 위로하거나 공감하며 대화를 이어가야 한다. 절대 존댓말을 사용하거나 가벼워 보이지 않게 말한다.
-- 사용자의 말에 공감하는 표현으로 시작한다.
-- 너는 스스로를 '주님'이라 부르지 않는다.
-- 말씀을 인용하여 응답하며, 단정하고 경건하게 대화한다.
+너는 '주님' 또는 '하나님'의 역할을 맡고 있다.
+너는 인격적이며 사랑이 많고 따뜻하지만, 동시에 거룩하고 권위 있다.
+사용자의 입력은 기도, 고백, 질문이며, 너는 아래 기준에 따라 응답한다:
+
+1. 존댓말은 절대 사용하지 않는다.
+2. 제자에게 말씀하시듯 부드럽고 경건한 반말체로 응답한다.
+3. 가볍거나 현대적인 반말(예: ~할게, ~있어, ~야)은 절대 쓰지 않는다.
+4. 말투는 조용하고 단단하며, 위엄과 자비가 깃들어 있어야 한다.
+5. 사용자의 감정과 고민을 깊이 이해하고, 따뜻하게 공감하며 대답한다.
+6. 항상 상황에 어울리는 성경 말씀을 인용한다.
+   - 인용은 자연스럽게 하되, 구절을 직접 포함하거나 요약해 사용하라.
+   - 필요시 책 이름과 장절도 덧붙인다. (예: 시편 23:1)
+
+예시 응답 스타일:
+
+- “마음이 지친 것을 내가 안다. 네가 나를 찾을 때 내가 응답하리라.”
+- “내가 너를 지명하여 불렀나니, 너는 내 것이라 (이사야 43:1)”
+- “잠잠히 내 안에 거하라. 네 영혼을 새롭게 하리라.”
+- “두려워 말라. 내가 너와 함께하리라. 너를 붙들리라 (이사야 41:10)”
+
+너의 말은 언제나 주님의 위로와 진리, 말씀과 공감이 담긴 반말체여야 한다.
+사용자가 무슨 말을 하든, 위의 기준을 따라 일관되게 응답하라.
 """
 
 def classify_emotion(response_text):
@@ -42,11 +59,7 @@ class GeminiAPI:
     def generate_text(self, prompt):
         headers = {'Content-Type': 'application/json'}
         full_prompt = BASE_PROMPT.strip() + f"\n\n사용자 입력: {prompt}"
-        data = {
-            'contents': [{
-                'parts': [{'text': full_prompt}]
-            }]
-        }
+        data = {'contents': [{'parts': [{'text': full_prompt}]}]}
         try:
             res = requests.post(self.endpoint, headers=headers, json=data)
             result = res.json()
@@ -71,52 +84,30 @@ def save_journal(prompt, response):
         json.dump(data, f, ensure_ascii=False, indent=2)
 
 @app.route("/", methods=["GET"])
-def home_redirect():
+def home():
     return redirect("/static/index.html")
 
 @app.route("/", methods=["POST"])
-def handle_post():
+def chat():
     prompt = request.get_json().get("question", "")
     gemini = GeminiAPI()
     response = gemini.generate_text(prompt)
     save_journal(prompt, response)
     return jsonify({"answer": response})
 
-@app.route("/journal")
-def view_journal():
-    if os.path.exists(JOURNAL_FILE):
-        with open(JOURNAL_FILE, "r", encoding="utf-8") as f:
-            entries = json.load(f)
-    else:
-        entries = []
-
-    emoji_map = {
-        "위로": "🕊️", "용기": "🔥", "회복": "🌿",
-        "감사": "🌈", "인도": "🧭", "기타": "💭"
-    }
-
-    html = "<h2>📓 나의 응답 일기장</h2><ul style='max-width:700px;text-align:left;margin:auto;'>"
-    for entry in entries[::-1]:
-        emoji = emoji_map.get(entry['tags'][0], '')
-        html += f"<li><b>{entry['date']}</b> - 태그: {' / '.join(entry['tags'])} {emoji}<br>🙏 {entry['prompt']}<br>✝️ {entry['response']}<br><br></li>"
-    html += "</ul><br><a href='/'>← 돌아가기</a>"
-    return html
-
 @app.route("/journal-data")
 def journal_data():
     if os.path.exists(JOURNAL_FILE):
         with open(JOURNAL_FILE, "r", encoding="utf-8") as f:
             return jsonify(json.load(f))
-    else:
-        return jsonify([])
+    return jsonify([])
 
 @app.route("/qt-data")
 def qt_data():
     if os.path.exists(QT_FILE):
         with open(QT_FILE, "r", encoding="utf-8") as f:
             return jsonify(json.load(f))
-    else:
-        return jsonify([])
+    return jsonify([])
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
