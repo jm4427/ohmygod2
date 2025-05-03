@@ -17,7 +17,7 @@
     #messages {
       flex: 1;
       overflow-y: auto;
-      padding: 20px;
+      padding: 10px 20px 20px;
     }
     .message {
       margin: 10px 0;
@@ -60,14 +60,24 @@
       border: none;
       cursor: pointer;
     }
+    .jesus-img {
+      width: 80px;
+      height: auto;
+      display: block;
+      margin: 10px auto 5px;
+      opacity: 0.85;
+      border-radius: 8px;
+    }
   </style>
 </head>
 <body>
+  <img src="/static/jesus.png" alt="Jesus" class="jesus-img" />
+
   <div id="messages"></div>
 
   <div id="inputArea">
-    <input type="text" id="questionInput" placeholder="고민을 입력해보세요..." />
-    <button id="sendBtn" onclick="sendMessage()">전송</button>
+    <input type="text" id="questionInput" placeholder="기도를 올려보세요..." />
+    <button id="sendBtn" onclick="sendMessage()">응답 받기</button>
   </div>
 
   <script>
@@ -79,7 +89,7 @@
     function typeText(text, element, index = 0) {
       if (index < text.length) {
         element.innerHTML += text.charAt(index);
-        setTimeout(() => typeText(text, element, index + 1), 40);
+        setTimeout(() => typeText(text, element, index + 1), 35);
         scrollToBottom();
       }
     }
