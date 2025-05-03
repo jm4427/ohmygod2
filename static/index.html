@@ -1,174 +1,114 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <title>주님의 응답</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo&display=swap');
-        body {
-            font-family: 'Nanum Myeongjo', serif;
-            margin: 0;
-            padding: 0;
-            background: linear-gradient(to bottom, #e6eaf0, #cfd8dc);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        .container {
-            width: 100%;
-            max-width: 700px;
-            height: 90vh;
-            background-color: #ffffff;
-            border: 1px solid #ccc;
-            border-radius: 16px;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-        .header {
-            background-color: #324960;
-            color: #fff;
-            padding: 16px;
-            text-align: center;
-            font-size: 1.4rem;
-            font-weight: bold;
-            border-bottom: 2px solid #222;
-        }
-        .verse {
-            padding: 16px;
-            font-style: italic;
-            background-color: #f5f7f9;
-            border-bottom: 1px solid #ccc;
-            text-align: center;
-        }
-        .messages {
-            flex-grow: 1;
-            padding: 20px;
-            overflow-y: auto;
-            background-color: #f4f6f8;
-            position: relative;
-        }
-        .jesus-image {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            width: 120px;
-            opacity: 0.15;
-            z-index: 0;
-        }
-        .message {
-            display: flex;
-            margin-bottom: 12px;
-            position: relative;
-            z-index: 1;
-        }
-        .message.user {
-            justify-content: flex-end;
-        }
-        .message .text {
-            max-width: 60%;
-            padding: 14px;
-            border-radius: 12px;
-            background-color: #fff;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-        }
-        .message.user .text {
-            background-color: #445f7a;
-            color: #ffffff;
-        }
-        .input-area {
-            display: flex;
-            flex-direction: column;
-            padding: 20px;
-            background-color: #ffffff;
-            border-top: 1px solid #ccc;
-        }
-        .input-area input {
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            margin-bottom: 12px;
-        }
-        .input-area button {
-            padding: 12px 20px;
-            border: none;
-            border-radius: 8px;
-            background-color: #324960;
-            color: #ffffff;
-            font-weight: bold;
-            cursor: pointer;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>주님의 응답</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Nanum Myeongjo', serif;
+      background-color: #111;
+      color: #eee;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    header {
+      background: #1c1c1c;
+      padding: 10px;
+      text-align: center;
+      color: #fff;
+      border-bottom: 1px solid #444;
+    }
+    h1 {
+      font-size: 1.6rem;
+      margin: 0;
+    }
+    nav {
+      margin-top: 8px;
+    }
+    nav a {
+      color: #ccc;
+      margin: 0 10px;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 0.95rem;
+    }
+    nav a:hover {
+      color: #fff;
+    }
+    #verse {
+      margin-top: 10px;
+      font-style: italic;
+      font-size: 0.9rem;
+      color: #bbb;
+    }
+    #content {
+      flex-grow: 1;
+      border: none;
+      width: 100%;
+      height: 100%;
+    }
+    #audio-control {
+      margin-top: 6px;
+    }
+    button {
+      background-color: #2e2e2e;
+      color: #ccc;
+      border: 1px solid #444;
+      padding: 6px 10px;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #444;
+    }
+    @media (max-width: 600px) {
+      nav a {
+        display: block;
+        margin: 6px 0;
+      }
+    }
+  </style>
 </head>
-<audio id="bgm" autoplay loop>
-  <source src="/static/background.mp3" type="audio/mpeg">
-</audio>
 <body>
-    <div class="container">
-        <div class="header">🙏 주님의 응답</div>
-        <div class="verse">📖 오늘의 말씀: {{ verse }}</div>
-        <div class="messages" id="messages">
-            <img src="/static/jesus.png" class="jesus-image">
-        </div>
-        <div class="input-area">
-            <input type="text" id="questionInput" placeholder="기도를 올려보세요...">
-            <button id="sendButton">응답 받기</button>
-        </div>
+  <header>
+    <h1>🙏 주님의 응답</h1>
+    <nav>
+      <a href="/static/chat.html" target="mainframe">💬 대화</a>
+      <a href="/static/qt.html" target="mainframe">📘 오늘의 QT</a>
+      <a href="/static/calendar.html" target="mainframe">🗓️ QT 달력</a>
+    </nav>
+    <div id="verse">📖 오늘의 말씀: <span id="dailyVerse">로딩 중...</span></div>
+    <div id="audio-control">
+      <audio id="bgm" loop>
+        <source src="/static/background.mp3" type="audio/mp3">
+      </audio>
+      <button onclick="document.getElementById('bgm').play()">🎵 음악 재생</button>
     </div>
+  </header>
 
-    <script>
-        document.getElementById('sendButton').addEventListener('click', sendMessage);
-        document.getElementById('questionInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                sendMessage();
-            }
-        });
+  <iframe id="content" name="mainframe" src="/static/chat.html"></iframe>
 
-        function sendMessage() {
-            const input = document.getElementById('questionInput');
-            const message = input.value;
-            if (message.trim() !== '') {
-                displayMessage(message, 'user');
-                fetch('/', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ question: message })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    displayMessage(data.answer, 'bot');
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-                input.value = '';
-            }
+  <script>
+    document.addEventListener("click", () => {
+      document.getElementById("bgm").play();
+    }, { once: true });
+
+    fetch("/qt-data")
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          const random = data[Math.floor(Math.random() * data.length)];
+          document.getElementById("dailyVerse").innerText = random.verse || random;
+        } else {
+          document.getElementById("dailyVerse").innerText = "말씀을 가져오지 못했습니다.";
         }
-
-        function displayMessage(text, sender) {
-            const messages = document.getElementById('messages');
-            const messageElement = document.createElement('div');
-            messageElement.className = 'message ' + sender;
-            const textElement = document.createElement('div');
-            textElement.className = 'text';
-            messageElement.appendChild(textElement);
-            messages.appendChild(messageElement);
-            messages.scrollTop = messages.scrollHeight;
-
-            let index = 0;
-            function typeWriter() {
-                if (index < text.length) {
-                    textElement.textContent += text.charAt(index);
-                    index++;
-                    messages.scrollTop = messages.scrollHeight;
-                    setTimeout(typeWriter, 80);
-                }
-            }
-            typeWriter();
-        }
-    </script>
+      })
+      .catch(() => {
+        document.getElementById("dailyVerse").innerText = "말씀을 가져오는 중 오류 발생";
+      });
+  </script>
 </body>
 </html>
