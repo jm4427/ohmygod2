@@ -3,7 +3,7 @@ import datetime
 import requests
 from flask import Flask, request, jsonify, render_template_string
 
-API_KEY = ''AIzaSyB2dfZGz7gyncDv38Zzi8-BNsPwkzjNG4k'
+API_KEY = 'AIzaSyB2dfZGz7gyncDv38Zzi8-BNsPwkzjNG4k'
 
 app = Flask(__name__)
 
