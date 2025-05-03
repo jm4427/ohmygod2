@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>📅 QT 달력</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body { font-family: 'Nanum Myeongjo', serif; text-align: center; padding: 20px; background: #f7f7f7; }
+    table { width: 100%; max-width: 500px; margin: auto; border-collapse: collapse; }
+    th, td { border: 1px solid #ccc; padding: 10px; height: 60px; vertical-align: top; }
+    th { background-color: #f0f0f0; }
+    td:hover { background-color: #fce4ec; cursor: pointer; }
+    .today { background: #fff3e0; }
+    .popup {
+      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      background: #fff; padding: 20px; border: 1px solid #ccc; box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      display: none; z-index: 1000;
+    }
+    .overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5); display: none; z-index: 999;
+    }
+  </style>
+</head>
+<body>
+  <h2>📅 나의 QT 달력</h2>
+  <div id="calendar"></div>
+  <div class="overlay" id="overlay" onclick="closePopup()"></div>
+  <div class="popup" id="popup">
+    <div id="popupContent"></div>
+    <br><button onclick="closePopup()">닫기</button>
+  </div>
+
+  <script>
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth(); // 0-indexed
+    const day = today.getDate();
+
+    async function loadJournal() {
+      const res = await fetch('/journal-data');
+      const data = await res.json();
+      return data.reduce((acc, entry) => {
+        acc[entry.date] = entry;
+        return acc;
+      }, {});
+    }
+
+    function getDaysInMonth(y, m) {
+      return new Date(y, m + 1, 0).getDate();
+    }
+
+    function renderCalendar(journal) {
+      const firstDay = new Date(year, month, 1).getDay();
+      const totalDays = getDaysInMonth(year, month);
+      let html = '<table><tr><th>일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th>토</th></tr><tr>';
+
+      for (let i = 0; i < firstDay; i++) html += "<td></td>";
+
+      for (let d = 1; d <= totalDays; d++) {
+        const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const isToday = d === day ? 'today' : '';
+        const hasEntry = journal[dateStr] ? 'style="font-weight:bold;color:#880e4f;"' : '';
+        html += `<td class="${isToday}" ${hasEntry} onclick="showEntry('${dateStr}', journal)">` + d + "</td>";
+        if ((d + firstDay) % 7 === 0) html += "</tr><tr>";
+      }
+
+      html += "</tr></table>";
+      document.getElementById("calendar").innerHTML = html;
+    }
+
+    function showEntry(dateStr, journal) {
+      const entry = journal[dateStr];
+      if (!entry) return;
+      const content = `
+        <b>날짜:</b> ${entry.date}<br>
+        <b>고민:</b> ${entry.prompt}<br>
+        <b>응답:</b> ${entry.response}<br>
+        <b>감정 태그:</b> ${entry.tags.join(', ')}
+      `;
+      document.getElementById("popupContent").innerHTML = content;
+      document.getElementById("overlay").style.display = "block";
+      document.getElementById("popup").style.display = "block";
+    }
+
+    function closePopup() {
+      document.getElementById("overlay").style.display = "none";
+      document.getElementById("popup").style.display = "none";
+    }
+
+    loadJournal().then(journal => {
+      window.journal = journal;
+      renderCalendar(journal);
+    });
+  </script>
+</body>
+</html>
