@@ -20,10 +20,21 @@
       position: fixed; top: 0; left: 0; right: 0; bottom: 0;
       background: rgba(0,0,0,0.5); display: none; z-index: 999;
     }
+    #qtVerse {
+      font-size: 18px;
+      background: #e0f7fa;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
   </style>
 </head>
 <body>
   <h2>📅 나의 QT 달력</h2>
+  <div id="qtVerse">오늘의 말씀 불러오는 중...</div>
   <div id="calendar"></div>
   <div class="overlay" id="overlay" onclick="closePopup()"></div>
   <div class="popup" id="popup">
@@ -32,9 +43,13 @@
   </div>
 
   <script>
+    const emojiMap = {
+      "위로": "🕊️", "용기": "🔥", "회복": "🌿", "감사": "🌈", "인도": "🧭", "기타": "💭"
+    };
+
     const today = new Date();
     const year = today.getFullYear();
-    const month = today.getMonth(); // 0-indexed
+    const month = today.getMonth();
     const day = today.getDate();
 
     async function loadJournal() {
@@ -44,6 +59,13 @@
         acc[entry.date] = entry;
         return acc;
       }, {});
+    }
+
+    async function loadQT() {
+      const res = await fetch('/qt-data');
+      const data = await res.json();
+      const rand = data[Math.floor(Math.random() * data.length)];
+      document.getElementById("qtVerse").innerText = "📖 오늘의 말씀: " + rand;
     }
 
     function getDaysInMonth(y, m) {
@@ -61,7 +83,15 @@
         const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
         const isToday = d === day ? 'today' : '';
         const hasEntry = journal[dateStr] ? 'style="font-weight:bold;color:#880e4f;"' : '';
-        html += `<td class="${isToday}" ${hasEntry} onclick="showEntry('${dateStr}', journal)">` + d + "</td>";
+        html += `<td class="${isToday}" ${hasEntry} onclick="showEntry('${dateStr}', journal)">` + d;
+
+        if (journal[dateStr]) {
+          const tag = journal[dateStr].tags[0];
+          const emoji = emojiMap[tag] || "";
+          html += "<br>" + emoji;
+        }
+
+        html += "</td>";
         if ((d + firstDay) % 7 === 0) html += "</tr><tr>";
       }
 
@@ -72,11 +102,12 @@
     function showEntry(dateStr, journal) {
       const entry = journal[dateStr];
       if (!entry) return;
+      const emoji = emojiMap[entry.tags[0]] || "";
       const content = `
         <b>날짜:</b> ${entry.date}<br>
+        <b>감정 태그:</b> ${entry.tags.join(', ')} ${emoji}<br>
         <b>고민:</b> ${entry.prompt}<br>
-        <b>응답:</b> ${entry.response}<br>
-        <b>감정 태그:</b> ${entry.tags.join(', ')}
+        <b>응답:</b> ${entry.response}
       `;
       document.getElementById("popupContent").innerHTML = content;
       document.getElementById("overlay").style.display = "block";
@@ -92,6 +123,7 @@
       window.journal = journal;
       renderCalendar(journal);
     });
+    loadQT();
   </script>
 </body>
 </html>

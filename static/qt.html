@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>QT 묵상 카드</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: 'Nanum Myeongjo', serif;
+      background: linear-gradient(to bottom, #fce4ec, #f3e5f5);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+    .card {
+      background: white;
+      padding: 40px;
+      max-width: 500px;
+      border-radius: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      text-align: center;
+      font-size: 20px;
+      line-height: 1.6;
+    }
+    button {
+      margin-top: 20px;
+      padding: 12px 24px;
+      font-size: 16px;
+      border: none;
+      border-radius: 10px;
+      background-color: #880e4f;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #ad1457;
+    }
+  </style>
+</head>
+<body>
+  <h2>📖 오늘의 QT 말씀</h2>
+  <div class="card" id="qtCard">말씀을 불러오는 중입니다...</div>
+  <button onclick="loadQT()">다른 말씀 보기</button>
+
+  <script>
+    async function loadQT() {
+      const res = await fetch('/qt-data');
+      const data = await res.json();
+      const rand = data[Math.floor(Math.random() * data.length)];
+      document.getElementById("qtCard").innerText = rand;
+    }
+
+    loadQT();
+  </script>
+</body>
+</html>
