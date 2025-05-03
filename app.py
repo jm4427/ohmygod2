@@ -19,7 +19,7 @@ class GeminiAPI:
                 {
                     'parts': [
                         {
-                            'text': f"""너는 하나님이시다. 사용자가 드린 기도를 듣고, 지혜롭고 위로가 되는 말씀을 성경 구절과 함께 전해줘. 답변은 경건하게, 차분하게, 간결하고 은혜롭게 해줘. 기도의 목적과 내용이 정확하지 않고 단순히 '주님'이라고 부르더라도 무슨 일인지 함께하려는 듯 대화를 이어가며 응답해줘. {prompt}"""
+                            'text': f"""너는 하나님이시다. 사용자가 드린 기도를 듣고, 지혜롭고 위로가 되는 말씀을 성경 구절과 함께 전해줘. 답변은 경건하게, 차분하게, 간결하고 은혜롭게 해줘. 기도의 목적과 내용이 정확하지 않고 단순히 '주님'이라고 부르더라도 무슨 일인지 함께하려는 듯 대화를 이어가며 응답해줘. 크게 의미 있어보이지 않는 물음에 너무 길게 답 하지마.{prompt}"""
                         }
                     ]
                 }
@@ -37,9 +37,9 @@ class GeminiAPI:
 
 def get_daily_verse():
     verses = [
-        "시편 23:1 - 여호와는 나의 목자시니 내가 부족함이 없으리로다",
-        "요한복음 3:16 - 하나님이 세상을 이처럼 사랑하사 독생자를 주셨으니",
-        "이사야 41:10 - 두려워하지 말라 내가 너와 함께 함이라"
+        "오늘의 말씀: 시편 23:1 - 여호와는 나의 목자시니 내가 부족함이 없으리로다",
+        "오늘의 말씀: 요한복음 3:16 - 하나님이 세상을 이처럼 사랑하사 독생자를 주셨으니",
+        "오늘의 말씀: 이사야 41:10 - 두려워하지 말라 내가 너와 함께 함이라"
     ]
     return verses[datetime.date.today().day % len(verses)]
 
@@ -85,6 +85,20 @@ def index():
                 right: 10px;
                 pointer-events: none;
             }
+            .message {
+                text-align: left;
+                margin: 8px 0;
+                padding: 10px;
+                border-radius: 6px;
+            }
+            .user {
+                background-color: #e0f7fa;
+                color: #006064;
+            }
+            .lord {
+                background-color: #fce4ec;
+                color: #880e4f;
+            }
             input[type="text"] {
                 width: 80%;
                 padding: 10px;
@@ -103,7 +117,7 @@ def index():
         </style>
     </head>
     <body>
-        <h2>📖 주님의 응답</h2>
+        <h2>📖 오늘의 말씀</h2>
         <p>{{ verse }}</p>
         <div id="messages">
             <img src="/static/jesus.png">
@@ -118,23 +132,28 @@ def index():
             }
 
             function sendMessage() {
-                let input = document.getElementById("questionInput");
-                let text = input.value;
+                const input = document.getElementById("questionInput");
+                const text = input.value;
                 if (!text.trim()) return;
-                let userDiv = document.createElement("div");
+
+                const userDiv = document.createElement("div");
+                userDiv.className = "message user";
                 userDiv.innerText = "🙏 " + text;
                 document.getElementById("messages").appendChild(userDiv);
                 scrollToBottom();
+
                 fetch("/", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ question: text })
                 }).then(res => res.json()).then(data => {
-                    let resDiv = document.createElement("div");
+                    const resDiv = document.createElement("div");
+                    resDiv.className = "message lord";
                     resDiv.innerText = "✝️ ";
                     document.getElementById("messages").appendChild(resDiv);
                     typeText(resDiv, data.answer);
                 });
+
                 input.value = "";
             }
 
