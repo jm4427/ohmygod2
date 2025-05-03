@@ -16,15 +16,22 @@ class GeminiAPI:
         headers = {'Content-Type': 'application/json'}
         data = {
             'contents': [
-                {'parts': [
-                    {'text': f"""너는 하나님이시다. 사용자가 드린 기도를 듣고, 지혜롭고 위로가 되는 말씀을 성경 구절과 함께 전해줘. 답변은 경건하게, 차분하게, 은혜롭게 해줘. 기도의 목적과 내용이 정확하지 않고 단순히 주님 등으로 너를 부르면 무슨일인지 말해보라는 등 대화를 주고 받으며 응답해줘. {prompt}"""}
-                ]}
+                {
+                    'parts': [
+                        {
+                            'text': f"""너는 하나님이시다. 사용자가 드린 기도를 듣고, 지혜롭고 위로가 되는 말씀을 성경 구절과 함께 전해줘. 답변은 경건하게, 차분하게, 간결하고 은혜롭게 해줘. 기도의 목적과 내용이 정확하지 않고 단순히 '주님'이라고 부르더라도 무슨 일인지 함께하려는 듯 대화를 이어가며 응답해줘. {prompt}"""
+                        }
+                    ]
+                }
             ]
         }
         try:
             response = requests.post(self.endpoint, headers=headers, json=data)
             result = response.json()
-            return result['candidates'][0]['content']['parts'][0]['text']
+            if 'candidates' in result:
+                return result['candidates'][0]['content']['parts'][0]['text']
+            else:
+                return f"Gemini 응답 오류: {result}"
         except Exception as e:
             return f"Error: {e}"
 
@@ -49,17 +56,55 @@ def index():
     <html>
     <head>
         <title>주님의 응답</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <style>
-            body { font-family: 'Nanum Myeongjo', serif; background: #f7f7f7; text-align: center; padding: 30px; }
-            #messages { max-width: 600px; margin: auto; padding: 20px; background: #fff; border-radius: 8px; box-shadow: 0 0 8px rgba(0,0,0,0.1); }
-            img { opacity: 0.3; width: 200px; position: fixed; bottom: 30px; left: 30px; }
+            body {
+                font-family: 'Nanum Myeongjo', serif;
+                background: #f7f7f7;
+                margin: 0;
+                padding: 10px;
+                text-align: center;
+            }
+            #messages {
+                max-width: 100%;
+                margin: auto;
+                padding: 15px;
+                background: #fff;
+                border-radius: 8px;
+                box-shadow: 0 0 8px rgba(0,0,0,0.1);
+                white-space: pre-wrap;
+                min-height: 200px;
+            }
+            img {
+                opacity: 0.3;
+                width: 150px;
+                position: fixed;
+                bottom: 10px;
+                left: 10px;
+            }
+            input[type="text"] {
+                width: 80%;
+                padding: 10px;
+                font-size: 16px;
+                margin-top: 15px;
+            }
+            button {
+                padding: 10px 16px;
+                font-size: 16px;
+                margin-top: 10px;
+                background-color: #333;
+                color: white;
+                border: none;
+                border-radius: 6px;
+            }
         </style>
     </head>
     <body>
-        <h2>📖 주님의 응답</h2>
+        <h2>📖 오늘의 말씀</h2>
         <p>{{ verse }}</p>
         <div id="messages"></div>
-        <input type="text" id="questionInput" placeholder="기도를 올려보세요..." style="width: 60%; padding: 8px;" />
+        <input type="text" id="questionInput" placeholder="기도를 올려보세요..." />
+        <br>
         <button onclick="sendMessage()">응답 받기</button>
         <img src="/static/jesus.png">
         <script>
@@ -85,8 +130,8 @@ def index():
 
             function typeText(element, text, index = 0) {
                 if (index < text.length) {
-                    element.innerText += text.charAt(index);
-                    setTimeout(() => typeText(element, text, index + 1), 80);
+                    element.textContent += text.charAt(index);
+                    setTimeout(() => typeText(element, text, index + 1), 50);
                 }
             }
         </script>
