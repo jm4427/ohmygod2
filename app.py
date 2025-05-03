@@ -66,21 +66,24 @@ def index():
                 text-align: center;
             }
             #messages {
-                max-width: 100%;
+                max-width: 700px;
                 margin: auto;
-                padding: 15px;
+                padding: 20px;
                 background: #fff;
                 border-radius: 8px;
                 box-shadow: 0 0 8px rgba(0,0,0,0.1);
                 white-space: pre-wrap;
-                min-height: 200px;
+                min-height: 300px;
+                overflow-y: auto;
+                position: relative;
             }
-            img {
-                opacity: 0.3;
-                width: 150px;
-                position: fixed;
+            #messages img {
+                width: 100px;
+                opacity: 0.2;
+                position: absolute;
                 bottom: 10px;
-                left: 10px;
+                right: 10px;
+                pointer-events: none;
             }
             input[type="text"] {
                 width: 80%;
@@ -100,14 +103,20 @@ def index():
         </style>
     </head>
     <body>
-        <h2>📖 오늘의 말씀</h2>
+        <h2>📖 주님의 응답</h2>
         <p>{{ verse }}</p>
-        <div id="messages"></div>
+        <div id="messages">
+            <img src="/static/jesus.png">
+        </div>
         <input type="text" id="questionInput" placeholder="기도를 올려보세요..." />
         <br>
         <button onclick="sendMessage()">응답 받기</button>
-        <img src="/static/jesus.png">
         <script>
+            function scrollToBottom() {
+                const msgDiv = document.getElementById("messages");
+                msgDiv.scrollTop = msgDiv.scrollHeight;
+            }
+
             function sendMessage() {
                 let input = document.getElementById("questionInput");
                 let text = input.value;
@@ -115,6 +124,7 @@ def index():
                 let userDiv = document.createElement("div");
                 userDiv.innerText = "🙏 " + text;
                 document.getElementById("messages").appendChild(userDiv);
+                scrollToBottom();
                 fetch("/", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -131,6 +141,7 @@ def index():
             function typeText(element, text, index = 0) {
                 if (index < text.length) {
                     element.textContent += text.charAt(index);
+                    scrollToBottom();
                     setTimeout(() => typeText(element, text, index + 1), 50);
                 }
             }
